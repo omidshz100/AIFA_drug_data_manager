@@ -16,6 +16,8 @@ scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 creds = Credentials.from_service_account_file("swift-atom-452517-m2-6029accc8a65.json", scopes=scope)
 client = gspread.authorize(creds)
 sheet = client.open(SHEET_NAME)
+
+
 def get_all_rows(sheet, column_names=None):
     """
     Retrieves all rows from the first worksheet of the Google Sheet, optionally mapping to specified column names.
@@ -183,13 +185,13 @@ def update_row_in_sheet(sheet, search_column, search_value, update_dict):
             return True
     return False
 # Step 5: Full process from URLs
-def process_pdfs_to_sheet(urls, sheet_name=SHEET_NAME):
+def process_pdfs_to_sheet(records_drug, sheet_name=SHEET_NAME):
     records = []
     # Adjust MAX_CELL_CHARS to leave more room for the "[TRUNCATED]" tag
     MAX_CELL_CHARS = 49900
     # [{'Codice  AIC': '43658032', 'URL_PDF':"jhbjhbjbjk"}]
     #  
-    for url in urls[9 - 2:15 - 2]:
+    for url in records_drug[9 - 2:15 - 2]:
         try:
             print(f"📥 Downloading from {url['URL_PDF']}")
             response = requests.get(url['URL_PDF'])
@@ -238,186 +240,11 @@ def process_pdfs_to_sheet(urls, sheet_name=SHEET_NAME):
         "6.2 Incompatibilities": "NON - TROVATO"
     }
             update_row_in_sheet(sheet, "Codice  AIC", url['Codice  AIC'], data)
+        # solve goggle sheet request limit
         time.sleep(1.5)  # Be nice to the server
-        
-    # print(records)
-    # # # Send to Google Sheets
-    # df = pd.DataFrame(records)
-    # sheet = init_google_sheet(sheet_name)
-    # sheet.clear()
-    # set_with_dataframe(sheet, df)
-    # print("✅ Data written to Google Sheet")
 
 
 
+# Fetching all rows from the Google Sheet to get URLs and AIC codes from Google Sheet
 rows = get_all_rows(sheet, column_names=["Codice  AIC", "URL_PDF"])
 process_pdfs_to_sheet(rows)
-
-# ✅ Call with live AIFA URLs
-# process_pdfs_to_sheet([{'Codice  AIC': "1000000", 'URL_PDF': "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4815/farmaci/38773/stampati?ts=RCP"}])
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4815/farmaci/38773/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3295/farmaci/39055/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3295/farmaci/39055/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/7020/farmaci/32932/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4311/farmaci/36102/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/5297/farmaci/42471/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4110/farmaci/26888/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4110/farmaci/26888/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2322/farmaci/45870/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2322/farmaci/45870/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2322/farmaci/45870/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2322/farmaci/45870/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4375/farmaci/27268/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4375/farmaci/27268/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4375/farmaci/27268/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3438/farmaci/45789/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/37378/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/37378/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3199/farmaci/46713/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3199/farmaci/46713/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4995/farmaci/42410/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2322/farmaci/42589/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/898/farmaci/43436/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/813/farmaci/43584/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/45017/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3199/farmaci/46713/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/107/farmaci/36967/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/107/farmaci/36967/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/107/farmaci/36967/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4311/farmaci/36321/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4311/farmaci/36321/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/549/farmaci/43811/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/549/farmaci/43811/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/549/farmaci/43811/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/549/farmaci/43811/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3646/farmaci/41225/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3646/farmaci/41225/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3646/farmaci/41225/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3646/farmaci/41225/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3646/farmaci/41225/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/5144/farmaci/27735/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3298/farmaci/44563/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3298/farmaci/44563/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3298/farmaci/44563/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3298/farmaci/44563/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3298/farmaci/44563/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3298/farmaci/44563/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/200/farmaci/37697/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/200/farmaci/37697/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/764/farmaci/39943/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/764/farmaci/39943/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/7184/farmaci/28681/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/7184/farmaci/28681/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/7184/farmaci/28681/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/8057/farmaci/44734/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/8057/farmaci/44734/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/194/farmaci/41358/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1230/farmaci/47424/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4311/farmaci/38049/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3665/farmaci/43091/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3665/farmaci/43091/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2278/farmaci/23564/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2278/farmaci/23564/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2278/farmaci/27665/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2278/farmaci/27665/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2278/farmaci/23308/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3010/farmaci/50382/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2753/farmaci/37545/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/8043/farmaci/37631/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/898/farmaci/37741/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3018/farmaci/38866/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2322/farmaci/41917/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/898/farmaci/37741/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3018/farmaci/38866/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2322/farmaci/41917/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/45015/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1896/farmaci/45043/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/813/farmaci/45178/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2322/farmaci/45342/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/898/farmaci/45468/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/8043/farmaci/50663/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/813/farmaci/45178/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/47875/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/8043/farmaci/50664/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1378/farmaci/37804/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1771/farmaci/37967/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1392/farmaci/38435/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1392/farmaci/37486/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/706/farmaci/38012/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/37371/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1378/farmaci/37804/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1771/farmaci/37967/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1392/farmaci/38435/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/37371/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/898/farmaci/34749/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/36171/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1392/farmaci/36175/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2322/farmaci/36488/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3018/farmaci/38651/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3199/farmaci/46073/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2812/farmaci/36595/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/38401/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/8043/farmaci/39914/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/813/farmaci/42121/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/898/farmaci/34749/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/36171/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2322/farmaci/36488/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3018/farmaci/38651/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/813/farmaci/42121/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3199/farmaci/46073/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/898/farmaci/34749/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/36171/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1392/farmaci/36175/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2322/farmaci/36488/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3018/farmaci/38651/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3199/farmaci/46073/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1392/farmaci/36175/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2812/farmaci/36595/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2812/farmaci/36595/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/8043/farmaci/39914/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/813/farmaci/42121/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/37382/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1561/farmaci/37382/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/348/farmaci/27066/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/348/farmaci/27066/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/7001/farmaci/25682/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/7001/farmaci/25682/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/959/farmaci/46169/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/959/farmaci/46169/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4080/farmaci/46899/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4080/farmaci/46899/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/6515/farmaci/15628/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4037/farmaci/37641/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2869/farmaci/44039/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2869/farmaci/44039/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2869/farmaci/44039/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2869/farmaci/44039/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2869/farmaci/44039/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2869/farmaci/44039/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2869/farmaci/44039/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2869/farmaci/44039/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2869/farmaci/44039/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2869/farmaci/44039/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/819/farmaci/44207/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/911/farmaci/35768/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/911/farmaci/35768/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/911/farmaci/35768/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2829/farmaci/44996/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1392/farmaci/45155/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3773/farmaci/45443/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3199/farmaci/45447/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/5587/farmaci/45672/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2826/farmaci/47070/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2829/farmaci/44996/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/1392/farmaci/45155/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3773/farmaci/45443/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/3199/farmaci/45447/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/5587/farmaci/45672/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/2826/farmaci/47070/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/898/farmaci/45276/stampati?ts=RCP",
-    # "https://api.aifa.gov.it/aifa-bdf-eif-be/1.0.0/organizzazione/4852/farmaci/45675/stampati?ts=RCP"
-# ])
-
-
-
-
