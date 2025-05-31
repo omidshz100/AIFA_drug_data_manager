@@ -3,4 +3,3 @@
 venv/
 *.txt
 !requirements.txt
-*.csv
