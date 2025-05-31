@@ -11,7 +11,7 @@ from google.oauth2.service_account import Credentials
 import time
 
 
-SHEET_NAME= "TestMohammad-Omid"
+SHEET_NAME= "Copy of parisa"  # Replace with your actual Google Sheet name
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = Credentials.from_service_account_file("swift-atom-452517-m2-6029accc8a65.json", scopes=scope)
 client = gspread.authorize(creds)
@@ -109,30 +109,39 @@ def get_aifa_urls(aic):
         pass
     return None
 
-rows = get_all_rows(sheet, column_names=["Codice  AIC"])
+if __name__ == "__main__":
+    # Connect to the Google Sheet
 
-for row in rows:
-    codice_aic = row.get("Codice  AIC")
-    if codice_aic:
-        urlData = get_aifa_urls(codice_aic)
-        if urlData is not None:
-            # print(f"Codice AIC: {codice_aic}")
-            # print(f"URL PDF: {urlData['URL_PDF']}")
-            # print(f"URL JSON: {urlData['URL_json']}")
-            # print(f"ATC: {urlData['ATC']}")
-            # Update the row in the Google Sheet
-            update_row_in_sheet(sheet, "Codice  AIC", codice_aic, {
-                "URL_PDF": urlData["URL_PDF"],
-                "URL_json": urlData["URL_json"],
-                "ATC": urlData["ATC"]
-            })
-        else: # urlData is None
-            update_row_in_sheet(sheet, 'Codice  AIC', codice_aic, {
-                    'ATC': 'NON',  
-                    'URL_PDF': 'NON',
-                    'URL_json': 'NON'
+    rows = get_all_rows(sheet, column_names=["Codice  AIC"])
+    for row in rows:
+        print(f"Processing row with Codice AIC: {row.get("Codice  AIC")}")
+        codice_aic = row.get("Codice  AIC")
+        if codice_aic:
+            urlData = get_aifa_urls(codice_aic)
+            if urlData is not None:
+                # print(f"Codice AIC: {codice_aic}")
+                # print(f"URL PDF: {urlData['URL_PDF']}")
+                # print(f"URL JSON: {urlData['URL_json']}")
+                # print(f"ATC: {urlData['ATC']}")
+                # Update the row in the Google Sheet
+                print(f"Updating row for Codice AIC: {codice_aic}")
+                update_row_in_sheet(sheet, "Codice  AIC", codice_aic, {
+                    "URL_PDF": urlData["URL_PDF"],
+                    "URL_json": urlData["URL_json"],
+                    "ATC": urlData["ATC"]
                 })
+                print(f"Row updated successfully for Codice AIC: {codice_aic}")
+                print("----------------------------------------------------")
+            else: # urlData is None
+                print(f"No data found for Codice AIC: {codice_aic}. Updating with 'NON'.")
+                update_row_in_sheet(sheet, 'Codice  AIC', codice_aic, {
+                        'ATC': 'NON',  
+                        'URL_PDF': 'NON',
+                        'URL_json': 'NON'
+                    })
+            
+            
+        else:
+            print("No Codice AIC found in this row.")
         
-        
-    else:
-        print("No Codice AIC found in this row.")
+        time.sleep(1.5)  # To avoid hitting the API too quickly
